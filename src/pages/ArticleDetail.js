@@ -1,26 +1,35 @@
-import React from 'react';
+import { useParams } from 'react-router-dom';
+import React, {useEffect, useState} from "react";
+const ArticleDetail = () =>{
+    const [article, setArticle] = useState({});
+      const { id } = useParams();
 
-class ArticleDetail extends React.Component {
-  render() {
-    const { match, articles } = this.props;
-    const articleId = parseInt(match.params.id);
 
-    // Trouver l'article correspondant
-    const article = articles.find(article => article.id === articleId);
+    useEffect(() => {
+        // Define the URL of the external API
+        const apiUrl = `https://techcrunch.com/wp-json/wp/v2/posts/${id}`;
 
-    if (!article) {
-      return <div>Article non trouvé.</div>;
-    }
-
+        // Make a GET request using the fetch API
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setArticle(data);
+            })
+            .catch(error => {
+                console.error('Error fetching article:', error);
+            });
+    }, [id]);
+    console.log(article)
     return (
       <div>
-        <h2>{article.title.rendered}</h2>
-        <p>Date de publication : {new Date(article.date).toLocaleDateString()}</p>
-        <div dangerouslySetInnerHTML={{ __html: article.content.rendered }}></div>
-        {/* Ajoutez d'autres détails de l'article ici */}
+          <img src={article.jetpack_featured_media_url} alt="" className="post-img" />
       </div>
     );
-  }
 }
 
 export default ArticleDetail;
